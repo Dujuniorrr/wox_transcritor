@@ -1,0 +1,144 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wox Transcritor</title>
+ 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
+  <script src="https://kit.fontawesome.com/6388f67cad.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#"> <img src="{% static 'img/logo.png'%}" alt="" width="150px">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href=""> <i class="fa fa-home fs-4" aria-hidden="true"></i> </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  {% if error %}
+<div class="container mt-4">
+    <div class="alert alert-danger col-6 m-auto text-center" role="alert">
+      {{error}}
+    </div>
+</div>
+{% endif %}
+<div id="content" class="mt-4">
+  <div id="drop-area">
+    <div>
+     <div class="card d-flex justify-content-center" id="card-audio">
+      
+       <div id="message" class="text-center">
+         <strong class="fs-3 text-pink text-center">  <i class="fa-solid fa-file-audio fs-1 text-center d-block" ></i> Arraste e solte um <br> arquivo de aúdio aqui.</strong>
+        <p class="text-center m-2 text-secondary">Arquivos suportados: mp3, mp4 e wav.</p>
+       </div>
+       <div class="container">
+         <form id="transfer-audio" action="" method="POST" enctype="multipart/form-data" class="d-flex justify-content-center mb-0">
+           {% csrf_token %}
+           <div class="custom-file-input" id="div-input">
+             <input type="file" id="file-input" class="input-file" name="audio" accept=".mp3,.mp4,.wav" >
+             <label for="upload"><i class="fa fa-cloud-upload" aria-hidden="true"></i> Escolher arquivo</label>
+           </div>
+           
+           <!-- <input type="file" id="file-input" name="audio"  class="btn-pink btn m-2 font-weight-bold"> -->
+           <button id="submit-input" type="submit" style="display: none;" class="btn m-2 font-weight-bold text-light"> <i class="fa fa-play-circle" aria-hidden="true"></i> <strong> Transcrever</strong></button>
+         </form>
+       </div>
+     </div>
+    </div>
+    
+   </div>
+</div>
+  
+ 
+  
+  <script>
+    
+  var dropArea = document.getElementById('drop-area');
+  var fileInput = document.getElementById('file-input');
+  
+  function preventDefaultBehavior(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  dropArea.addEventListener('dragenter', preventDefaultBehavior, false);
+  dropArea.addEventListener('dragover', preventDefaultBehavior, false);
+  dropArea.addEventListener('dragleave', preventDefaultBehavior, false);
+  dropArea.addEventListener('drop', handleDrop, false);
+
+  function handleDrop(event) {
+    preventDefaultBehavior(event);
+  
+    var file = event.dataTransfer.files[0];
+    fileInput.files = event.dataTransfer.files;
+
+    successMessage();
+
+    console.log('Arquivo arrastado:', file.name);
+  }
+
+  fileInput.addEventListener('change', handleFileSelection, false);
+
+  function handleFileSelection(event) {
+    var file = event.target.files[0];
+
+    successMessage();
+  }
+
+  function successMessage(){
+    content = "<i class='fa-solid fa-circle-check success-symbol d-block'></i><strong class='fs-3 text-pink text-center'> Arquivo de áudio <br> selecionado.</strong>";
+    document.getElementById("message").innerHTML = content;
+    
+    fileInput = document.getElementById("div-input");
+    fileInput.style.display = "none";
+
+    submitInput = document.getElementById("submit-input");
+    submitInput.style.display = "block";
+  }
+
+  $(document).ready(function() {
+    $('#transfer-audio').submit(function(event) {
+      event.preventDefault(); // Impede o envio normal do formulário
+  
+      content = "<img id='loading' src='{% static 'img/loading.gif' %}' width='200px' class='mb-4' ></i><strong class='fs-3 text-pink text-center'> Analisando áudio...</strong>";
+      document.getElementById("card-audio").innerHTML = content;
+      
+      var formData = new FormData(this);
+
+      $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          $('#content').html(response);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          console.log('Erro:', errorThrown);
+        }
+      });
+    });
+  });
+
+  
+  
+  </script>
+</body>
+</html>

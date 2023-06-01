@@ -1,0 +1,64 @@
+
+{% load static %}
+
+<div id="content" class=" mt-3">
+    <div class="row m-4">
+        <div class="col-6 row">
+            <div class="card col-11 bg-light p-0 m-2">
+                <div class="card-header  card-pink">
+                  <strong>Transcrição</strong>
+                </div>
+                <div class="card-body">
+                  <blockquote class="blockquote mb-0">
+                    <p>{{ transcription }}</p>
+                  </blockquote>
+                </div>
+            </div>
+            <div class="card col-11 bg-light p-0 m-2">
+                <div class="card-header  card-pink">
+                  <strong>Frequência de Palavras</strong>
+                </div>
+                <div class="card-body">
+                  <blockquote class="blockquote mb-0">
+                    {% for key, value in frequency.items %}
+                    <p> <strong>{{key}}</strong> se repete {{value}} 
+                    {% if value > 1 %}
+                    vezes
+                    {% elif value <= 1 %}
+                    vez
+                    {% endif %}
+                        .</p>
+                    <br>
+                    {% endfor%}
+                  </blockquote>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 row ">
+            <div class="card col-12 bg-light p-0 m-2">
+                <div class="card-header  card-pink">
+                  <strong>Nuvem de palavras</strong>
+                </div>
+                <div class="card-body p-2 bg-white">
+                  <img src="{% static 'wordclouds/wordcloud.png' %}" alt="" width="100%" class="rounded-2">
+                </div>
+            </div>
+            <div class="card col-12 bg-light p-0 m-2">
+                <div class="card-header  card-pink">
+                  <strong>Tokens, Lemas, Categoria Gramatical e Dependência sintática</strong>
+                </div>
+                <div class="card-body">
+                    {% for token in doc %}
+                       <strong> Token:</strong> {{token.text}}
+                       <strong> Lema:</strong> {{token.lemma_}}
+                       <strong> Categoria gramatical:</strong> {{token.pos_}}
+                       <strong> Dependência sintática:</strong> {{token.dep_}}
+                        <br><br>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+  
